@@ -38,12 +38,15 @@ jobs:
 
     - name: Export Solution from Dev (Unmanaged)
       run: |
-        pac solution export --name 'ADCBMasterConfigurations' --path UnmanagedSolution.zip --managed false
+        pac solution export --name 'ADCBMasterConfigurations' --path ADCBMasterConfigurationsV1.zip --managed false
 
     - name: Unpack solution to folder
       run: |
-        pac solution unpack --zipfile UnmanagedSolution.zip --folder powerplatform/solution --packagetype Unmanaged
-
+        pac solution unpack --zipfile ADCBMasterConfigurationsV1.zip --folder powerplatform/solution --packagetype Unmanaged
+  
+    - name: List files in solution folder
+      run: ls -la powerplatform/solution
+   
     - name: Commit unpacked solution
       run: |
         git config user.name "github-actions"
@@ -51,3 +54,5 @@ jobs:
         git add powerplatform/solution
         git commit -m "Exported solution from Dev (Unmanaged)" || echo "No changes to commit"
          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+
+
