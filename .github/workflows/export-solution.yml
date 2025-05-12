@@ -8,12 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+       
     - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Setup Power Platform CLI
       uses: microsoft/powerplatform-actions/setup@v1
-
+      
     - name: Export Solution from Dev (Unmanaged)
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
@@ -21,7 +25,7 @@ jobs:
         client-id: ${{ secrets.CLIENT_ID }}
         tenant-id: ${{ secrets.TENANT_ID }}
         client-secret: ${{ secrets.CLIENT_SECRET }}
-        solution-name: 'ADCBMasterConfigurations'  # 🔁 Replace with your solution name
+        solution-name: 'ADCBMasterConfigurations'  
         solution-output-file: 'UnmanagedSolution.zip'
         managed: false
 
