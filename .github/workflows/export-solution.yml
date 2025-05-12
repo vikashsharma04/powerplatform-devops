@@ -13,7 +13,7 @@ jobs:
 
     - name: Install Power Platform CLI
       run: |
-        npm install -g pac
+        npm install -g pac@1.8.0
 
     - name: Authenticate with Power Platform
       run: |
