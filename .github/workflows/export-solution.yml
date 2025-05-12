@@ -26,6 +26,11 @@ jobs:
     - name: Check pac CLI help
       run: |
         pac --help
+        
+    # Add minimal package.json (this is a fix for the missing module error)
+    - name: Add minimal package.json
+      run: |
+        echo '{ "name": "powerplatform-devops", "version": "1.0.0", "dependencies": {} }' > package.json
 
     - name: Authenticate with Power Platform
       run: |
