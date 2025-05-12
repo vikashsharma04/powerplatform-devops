@@ -8,26 +8,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-    - name: Install Power Platform Tools
-      uses: microsoft/powerplatform-actions/actions-install@v1
-       
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Setup Power Platform CLI
-      uses: microsoft/powerplatform-actions@v1
-      
+    - name: Install Power Platform CLI
+      run: |
+        npm install -g pac
+
+    - name: Authenticate with Power Platform
+      run: |
+        pac auth create --url ${{ secrets.DEV_ENV_URL }} --clientId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+
     - name: Export Solution from Dev (Unmanaged)
-      uses: microsoft/powerplatform-actions/export-solution@v1
-      with:
-        environment-url: ${{ secrets.DEV_ENV_URL }}
-        client-id: ${{ secrets.CLIENT_ID }}
-        tenant-id: ${{ secrets.TENANT_ID }}
-        client-secret: ${{ secrets.CLIENT_SECRET }}
-        solution-name: 'ADCBMasterConfigurations'  
-        solution-output-file: 'UnmanagedSolution.zip'
-        managed: false
+      run: |
+        pac solution export --name 'ADCBMasterConfigurations' --path UnmanagedSolution.zip --managed false
 
     - name: Unpack solution to folder
       run: |
