@@ -22,10 +22,10 @@ jobs:
       run: |
         npm install -g pac
 
-    # Check installed pac version
-    - name: Check pac version
+    # Check pac CLI help
+    - name: Check pac CLI help
       run: |
-        pac --version
+        pac --help
 
     - name: Authenticate with Power Platform
       run: |
