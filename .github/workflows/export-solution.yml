@@ -1,0 +1,38 @@
+name: Export Power Platform Solution (Dev)
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  export-solution:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions/setup@v1
+
+    - name: Export Unmanaged Solution from Dev
+      uses: microsoft/powerplatform-actions/actions/export-solution@v1
+      with:
+        environment-url: ${{ secrets.DEV_ENV_URL }}
+        client-id: ${{ secrets.CLIENT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        solution-name: 'ADCBMasterConfigurations'     # ⬅️ CHANGE THIS
+        solution-output-file: 'UnmanagedSolution.zip'
+        managed: false
+
+    - name: Unpack solution to folder
+      run: |
+        pac solution unpack --zipfile UnmanagedSolution.zip --folder powerplatform/solution --packagetype Unmanaged
+
+    - name: Commit unpacked solution to Git
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add powerplatform/solution
+        git commit -m "Unpacked solution from Dev"
+        git push || echo "No changes to commit"
