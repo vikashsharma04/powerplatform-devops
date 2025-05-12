@@ -15,6 +15,7 @@ env:
   ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
   CLIENT_ID: '2c34728a-634b-414c-b7e4-e904ead4b2c1'
   TENANT_ID: '807cb068-493f-40b4-b067-712d94fa7730'
+  ACTIONS_STEP_DEBUG: true
 
 permissions:
   contents: write
@@ -31,15 +32,15 @@ jobs:
         lfs: true
 
     - name: Who Am I - verify connection
-      uses: microsoft/powerplatform-actions/who-am-i@v0
+      uses: microsoft/powerplatform-actions/who-am-i@0c80aacb61f9bfdcb930b880febc420ec4ef2f3e
       with:
         environment-url: ${{ env.ENVIRONMENT_URL }}
         app-id: ${{ env.CLIENT_ID }}
         client-secret: ${{ secrets.PowerPlatformSPN }}
         tenant-id: ${{ env.TENANT_ID }}
-
+        
     - name: Export solution
-      uses: microsoft/powerplatform-actions/export-solution@v0
+      uses: microsoft/powerplatform-actions/export-solution@0c80aacb61f9bfdcb930b880febc420ec4ef2f3e
       with:
         environment-url: ${{ env.ENVIRONMENT_URL }}
         app-id: ${{ env.CLIENT_ID }}
