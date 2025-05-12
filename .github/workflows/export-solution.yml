@@ -17,7 +17,7 @@ jobs:
 
     - name: Authenticate with Power Platform
       run: |
-        pac auth create --url ${{ secrets.DEV_ENV_URL }} --clientId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+        pac auth create --url 'https://demo001.crm8.dynamics.com/' --clientId '2c34728a-634b-414c-b7e4-e904ead4b2c1' --clientSecret '8xN8Q~CNcHgj0dCgkl~B8Uc31LX93CUu3fETCdg.' --tenant '807cb068-493f-40b4-b067-712d94fa7730'
 
     - name: Export Solution from Dev (Unmanaged)
       run: |
