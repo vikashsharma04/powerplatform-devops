@@ -1,0 +1,68 @@
+name: export-and-commit-solution
+# Export solution from DEV environment
+# Unpack it, prepare, commit, and push a git branch with the changes
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name:
+        description: 'Name of the solution to work on from Power Platform'
+        required: true
+        default: ADCBMasterConfigurations  # Pre-filled with your solution name
+
+env:
+  # Your Power Platform environment details
+  ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
+  CLIENT_ID: '2c34728a-634b-414c-b7e4-e904ead4b2c1'
+  TENANT_ID: '807cb068-493f-40b4-b067-712d94fa7730'
+
+permissions:
+  contents: write
+
+jobs:
+  export-from-dev:
+    runs-on: ubuntu-latest
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        lfs: true
+
+    - name: Who Am I - verify connection
+      uses: microsoft/powerplatform-actions/who-am-i@v0
+      with:
+        environment-url: ${{ env.ENVIRONMENT_URL }}
+        app-id: ${{ env.CLIENT_ID }}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{ env.TENANT_ID }}
+
+    - name: Export solution
+      uses: microsoft/powerplatform-actions/export-solution@v0
+      with:
+        environment-url: ${{ env.ENVIRONMENT_URL }}
+        app-id: ${{ env.CLIENT_ID }}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{ env.TENANT_ID }}
+        solution-name: ${{ github.event.inputs.solution_name }}
+        solution-output-file: powerplatform/${{ github.event.inputs.solution_name }}_unmanaged.zip
+
+    - name: Unpack solution
+      uses: microsoft/powerplatform-actions/unpack-solution@v0
+      with:
+        solution-file: powerplatform/${{ github.event.inputs.solution_name }}_unmanaged.zip
+        solution-folder: powerplatform/${{ github.event.inputs.solution_name }}
+        solution-type: 'Unmanaged'
+        overwrite-files: true
+
+    - name: Git fetch, commit and push
+      run: |
+        git fetch --all  
+        git config --global user.email "no-reply@github.com"
+        git config --global user.name "GitHub Actions"
+        git checkout main
+        git add --all 
+        git commit -m "Exported and unpacked solution from Dev environment"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+        git push
