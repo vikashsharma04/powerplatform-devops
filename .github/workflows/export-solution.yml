@@ -11,14 +11,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # Set up Node.js 10
     - name: Set up Node.js 10
       uses: actions/setup-node@v3
       with:
         node-version: '10'
-        
+
+    # Install Power Platform CLI (pac)
     - name: Install Power Platform CLI (pac)
       run: |
         npm install -g pac
+
+    # Check installed pac version
+    - name: Check pac version
+      run: |
+        pac --version
 
     - name: Authenticate with Power Platform
       run: |
