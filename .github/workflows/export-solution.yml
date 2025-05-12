@@ -11,9 +11,6 @@ jobs:
 
     - name: Install Power Platform Tools
       uses: microsoft/powerplatform-actions/actions-install@v1
-
-    - name: powerplatform-actions
-      uses: microsoft/powerplatform-actions@v1.8.0
        
     - name: Checkout repository
       uses: actions/checkout@v3
