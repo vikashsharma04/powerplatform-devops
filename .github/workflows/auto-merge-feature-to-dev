@@ -1,5 +1,4 @@
 name: Auto Merge Feature to Dev
-
 on:
   push:
     branches:
