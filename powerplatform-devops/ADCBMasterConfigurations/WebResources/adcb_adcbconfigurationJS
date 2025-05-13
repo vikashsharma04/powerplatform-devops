@@ -4,6 +4,8 @@ function lockFieldsOnApproved(executionContext)
 //added the details to feature
 //added the details to feature branch
 //added the details to feature branch
+//added the details to feature branch
+//added the details to feature branch V
     debugger;
     var formContext = executionContext.getFormContext();
     if (formContext.ui.getFormType() == 2)
