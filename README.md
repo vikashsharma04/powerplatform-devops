@@ -1,6 +1,6 @@
 Power Platform DevOps
 Description: Power Platform DevOps for exporting unmanaged solutions.
-
+Vikash Sharma
 Repository Details
 Repository Name: powerplatform-devops
 Owner: vikashsharma04
@@ -42,3 +42,104 @@ The workflow may fail due to a timeout while downloading the microsoft/powerplat
 Solution:
 Update the workflow to use the latest stable version of the action (@v0) instead of a specific commit SHA.
 Ensure network stability and retry if the issue persists.
+
+### Git Commands with Examples
+
+Below are the Git commands commonly used in this repository along with examples:
+
+#### 1. Clone the Repository
+To clone the repository to your local machine:
+```bash
+git clone https://github.com/vikashsharma04/powerplatform-devops.git
+```
+
+#### 2. Check Repository Status
+To check the current status of your repository:
+```bash
+git status
+```
+
+#### 3. Add Changes to Staging
+To stage changes for commit:
+```bash
+git add .
+```
+
+#### 4. Commit Changes
+To commit staged changes with a message:
+```bash
+git commit -m "Your commit message here"
+```
+
+#### 5. Push Changes to Remote
+To push committed changes to the remote repository:
+```bash
+git push origin main
+```
+
+#### 6. Pull Latest Changes
+To pull the latest changes from the remote repository:
+```bash
+git pull origin main
+```
+
+#### 7. Create a New Branch
+To create and switch to a new branch:
+```bash
+git checkout -b new-branch-name
+```
+
+#### 8. Switch to an Existing Branch
+To switch to an existing branch:
+```bash
+git checkout branch-name
+```
+
+#### 9. Merge a Branch
+To merge a branch into the current branch:
+```bash
+git merge branch-name
+```
+
+#### 10. View Commit History
+To view the commit history:
+```bash
+git log
+```
+
+#### 11. Discard Changes
+To discard unstaged changes in a file:
+```bash
+git checkout -- file-name
+```
+
+#### 12. Delete a Branch
+To delete a branch locally:
+```bash
+git branch -d branch-name
+```
+To delete a branch remotely:
+```bash
+git push origin --delete branch-name
+```
+
+#### 13. Resolve Merge Conflicts
+To resolve merge conflicts, edit the conflicting files, stage the changes, and commit:
+```bash
+git add .
+git commit -m "Resolved merge conflicts"
+```
+
+#### 14. Revert a Commit
+To revert a specific commit:
+```bash
+git revert commit-hash
+```
+
+#### 15. Reset to a Previous Commit
+To reset the repository to a previous commit:
+```bash
+git reset --hard commit-hash
+```
+
+These commands will help you manage the repository effectively while working with the Power Platform DevOps workflows.
