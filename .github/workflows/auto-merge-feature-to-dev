@@ -1,0 +1,37 @@
+name: Auto Merge Feature to Dev
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  feature-to-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create Pull Request from feature to dev
+      id: cpr
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Auto PR from feature to dev'
+        base: dev
+        branch: ${{ github.ref_name }} # this resolves to the current feature branch
+        title: 'Auto PR from ${{ github.ref_name }} to dev'
+        body: 'Automatically created pull request from ${{ github.ref_name }} to dev'
+
+    - name: Enable auto-merge
+      if: steps.cpr.outputs.pull-request-number != ''
+      uses: peter-evans/enable-pull-request-automerge@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+        merge-method: squash
