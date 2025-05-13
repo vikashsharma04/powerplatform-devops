@@ -1,10 +1,10 @@
-name: Import Power Platform Components to Power Apps
+name: Pack and Import Power Platform Solution
 
 on:
   workflow_dispatch:
 
 env:
-  ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/' # Update to your environment URL
+  ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
   CLIENT_ID: '2c34728a-634b-414c-b7e4-e904ead4b2c1'
   TENANT_ID: '807cb068-493f-40b4-b067-712d94fa7730'
 
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  import-components:
+  pack-and-import:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,13 +22,13 @@ jobs:
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Authenticate to Power Platform
-      uses: microsoft/powerplatform-actions/authenticate@v1
+    - name: Pack solution
+      uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
-        environment-url: ${{ env.ENVIRONMENT_URL }}
-        app-id: ${{ env.CLIENT_ID }}
-        client-secret: ${{ secrets.PowerPlatformSPN }}
-        tenant-id: ${{ env.TENANT_ID }}
+        solution-folder: powerplatform-devops/ADCBMasterConfigurations
+        solution-file: powerplatform-devops/ADCBMasterConfigurations.zip
+        solution-type: Unmanaged
+        overwrite-files: true
 
     - name: Import solution to Power Apps
       uses: microsoft/powerplatform-actions/import-solution@v1
@@ -37,5 +37,5 @@ jobs:
         app-id: ${{ env.CLIENT_ID }}
         client-secret: ${{ secrets.PowerPlatformSPN }}
         tenant-id: ${{ env.TENANT_ID }}
-        solution-file: powerplatform/solution.zip
+        solution-file: powerplatform-devops/ADCBMasterConfigurations.zip
         force-overwrite: true
