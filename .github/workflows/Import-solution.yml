@@ -1,59 +1,41 @@
-name: Import Power Platform Solution
+name: Import Power Platform Components to Power Apps
 
 on:
   workflow_dispatch:
 
+env:
+  ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/' # Update to your environment URL
+  CLIENT_ID: '2c34728a-634b-414c-b7e4-e904ead4b2c1'
+  TENANT_ID: '807cb068-493f-40b4-b067-712d94fa7730'
+
+permissions:
+  contents: read
+
 jobs:
-  export-solution:
+  import-components:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Set up Node.js 10
-    - name: Set up Node.js 10
-      uses: actions/setup-node@v3
+    - name: Install Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: Authenticate to Power Platform
+      uses: microsoft/powerplatform-actions/authenticate@v1
       with:
-        node-version: '10'
+        environment-url: ${{ env.ENVIRONMENT_URL }}
+        app-id: ${{ env.CLIENT_ID }}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{ env.TENANT_ID }}
 
-    # Install Power Platform CLI (pac)
-    - name: Install Power Platform CLI (pac)
-      run: |
-        npm install -g pac
-
-    # Check pac CLI help
-    - name: Check pac CLI help
-      run: |
-        pac --help
-        
-    # Add minimal package.json (this is a fix for the missing module error)
-    - name: Add minimal package.json
-      run: |
-        echo '{ "name": "powerplatform-devops", "version": "1.0.0", "dependencies": {} }' > package.json
-
-    - name: Authenticate with Power Platform
-      run: |
-        pac auth create --url 'https://demo001.crm8.dynamics.com/' --clientId '2c34728a-634b-414c-b7e4-e904ead4b2c1' --clientSecret '8xN8Q~CNcHgj0dCgkl~B8Uc31LX93CUu3fETCdg.' --tenant '807cb068-493f-40b4-b067-712d94fa7730'
-
-    - name: Export Solution from Dev (Unmanaged)
-      run: |
-        pac solution export --name 'ADCBMasterConfigurations' --path ADCBMasterConfigurationsV1.zip --managed false
-
-    - name: Unpack solution to folder
-      run: |
-        pac solution unpack --zipfile ADCBMasterConfigurationsV1.zip --folder powerplatform/solution --packagetype Unmanaged
-
-    - name: List files in solution folder
-      run: ls -la powerplatform/solution
-   
-    - name: Check git status
-      run: git status
-
-    - name: Commit unpacked solution
-      run: |
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git add powerplatform/solution
-        git commit -m "Exported solution from Dev (Unmanaged)" || echo "No changes to commit"
-        git push https://github.com/${{ github.repository }}.git HEAD:main
+    - name: Import solution to Power Apps
+      uses: microsoft/powerplatform-actions/import-solution@v1
+      with:
+        environment-url: ${{ env.ENVIRONMENT_URL }}
+        app-id: ${{ env.CLIENT_ID }}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{ env.TENANT_ID }}
+        solution-file: powerplatform/solution.zip
+        force-overwrite: true
