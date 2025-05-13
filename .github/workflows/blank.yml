@@ -1,4 +1,4 @@
-name: Auto PR from Feature to Dev
+name: Auto PR from feature to dev
 
 on:
   push:
@@ -8,29 +8,19 @@ on:
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Create Pull Request
+    - name: Create Pull Request to dev
       uses: peter-evans/create-pull-request@v5
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Automated changes from feature branch"
-        title: "Auto PR: Merge feature to dev"
-        body: "This PR was created automatically when changes were pushed to the `feature` branch."
         base: dev
-        branch: feature
-        delete-branch: false
-        draft: false
-
-  auto-merge:
-    needs: create-pull-request
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Auto Merge PR
-      uses: pascalgn/automerge-action@v0.15.3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        head: feature
+        title: 'Auto PR: Merge feature to dev'
+        body: |
+          This pull request is automatically created by a GitHub Action
+          to merge recent commits from `feature` to `dev`.
+        branch: auto-pr-feature-to-dev
+        delete-branch: true
