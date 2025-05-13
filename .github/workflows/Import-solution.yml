@@ -1,4 +1,4 @@
-name: Export Power Platform Solution (Dev)
+name: Import Power Platform Solution
 
 on:
   workflow_dispatch:
