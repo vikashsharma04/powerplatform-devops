@@ -3,7 +3,7 @@ name: Auto Merge Feature to Dev
 on:
   push:
     branches:
-      - 'feature/*'
+      - 'feature'
 
 jobs:
   auto-merge:
