@@ -1,6 +1,7 @@
 function lockFieldsOnApproved(executionContext) 
 {
 //pushing inyo the feature branch
+//added the details to feature
     debugger;
     var formContext = executionContext.getFormContext();
     if (formContext.ui.getFormType() == 2)
