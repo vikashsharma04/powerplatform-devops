@@ -99,6 +99,12 @@
         </Required>
         <Dependent type="80" schemaName="adcb_ADCBApp" displayName="ADCB App" />
       </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.14)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.19">PowerAppsAppFramework_Anchor (1.0.0.19)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=adcb_ADCBApp,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="adcb_ADCBApp" id.settingdefinitionid.uniquename="AppChannel" />
+      </MissingDependency>
     </MissingDependencies>
   </SolutionManifest>
 </ImportExportXml>

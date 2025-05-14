@@ -2,34 +2,36 @@
   "properties": {
     "connectionReferences": {
       "shared_commondataserviceforapps": {
-        "api": {
-          "name": "shared_commondataserviceforapps"
-        },
+        "runtimeSource": "embedded",
         "connection": {
           "connectionReferenceLogicalName": "adcb_sharedcommondataserviceforapps_a4d0f"
         },
-        "runtimeSource": "embedded"
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
       }
     },
     "definition": {
       "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "contentVersion": "1.0.0.0",
       "parameters": {
-        "$authentication": {
-          "defaultValue": {},
-          "type": "SecureObject"
-        },
         "$connections": {
           "defaultValue": {},
           "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
         }
       },
       "triggers": {
         "manual": {
+          "metadata": {
+            "operationMetadataId": "d48fd698-408a-4e44-ac7d-58afcfd62ea6"
+          },
           "type": "Request",
           "kind": "Http",
           "inputs": {
-            "triggerAuthenticationType": "Tenant",
             "schema": {
               "type": "object",
               "properties": {
@@ -40,34 +42,41 @@
                   "type": "string"
                 }
               }
-            }
-          },
-          "metadata": {
-            "operationMetadataId": "d48fd698-408a-4e44-ac7d-58afcfd62ea6"
+            },
+            "triggerAuthenticationType": "Tenant"
           }
         }
       },
       "actions": {
         "Add_a_new_row": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "8b1eeee4-1bbf-41bc-a6ee-6d71695875cd"
+          },
           "type": "OpenApiConnection",
           "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "CreateRecord",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
             "parameters": {
               "entityName": "contacts",
               "item/lastname": "@triggerBody()?['requestname']",
               "item/emailaddress1": "@triggerBody()?['requestemail']"
             },
-            "host": {
-              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
-              "operationId": "CreateRecord",
-              "connectionName": "shared_commondataserviceforapps"
-            }
-          },
-          "runAfter": {},
-          "metadata": {
-            "operationMetadataId": "8b1eeee4-1bbf-41bc-a6ee-6d71695875cd"
+            "authentication": "@parameters('$authentication')"
           }
         },
         "Response": {
+          "runAfter": {
+            "Add_a_new_row": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "8f0dd59d-1f9b-408a-9793-bbcdba782a3b"
+          },
           "type": "Response",
           "kind": "Http",
           "inputs": {
@@ -76,21 +85,13 @@
               "content-type": "application/json"
             },
             "body": {
-              "status": "Flow is executed successfully from the Dev Machine V1"
+              "status": "Flow is executed successfully from the Dev Machine"
             }
-          },
-          "runAfter": {
-            "Add_a_new_row": [
-              "Succeeded"
-            ]
-          },
-          "metadata": {
-            "operationMetadataId": "8f0dd59d-1f9b-408a-9793-bbcdba782a3b"
           }
         }
       }
     },
-    "templateName": null
+    "templateName": ""
   },
   "schemaVersion": "1.0.0.0"
 }
