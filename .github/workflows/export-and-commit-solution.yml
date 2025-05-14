@@ -52,7 +52,7 @@ jobs:
         fi
 
         if [ -d "$SOL_FOLDER" ]; then
-          mv "$SOL_FOLDER" "${{ github.event.inputs.version }}/exportsolution/source"
+          mv "$SOL_FOLDER" "${{ github.event.inputs.version }}/exportsolution/"
         fi
 
     - name: Who Am I
@@ -85,7 +85,7 @@ jobs:
       run: |
         mkdir -p ${{ github.event.inputs.version }}/exportsolution
         mv ${{ github.event.inputs.solution_name }}_unmanaged.zip ${{ github.event.inputs.version }}/exportsolution/
-        mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.version }}/exportsolution/source
+        mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.version }}/exportsolution/
 
     - name: Commit to solutions branch
       run: |
