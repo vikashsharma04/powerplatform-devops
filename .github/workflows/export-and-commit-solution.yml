@@ -1,4 +1,4 @@
-name: Export Power Platform Solution and Create Feature Branch
+name: Export Power Platform Solution and Create Versioned Feature Branch
 
 on:
   workflow_dispatch:
@@ -60,11 +60,12 @@ jobs:
         git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
         git push origin solutions
 
-    - name: Create feature branch from solutions and push solution
+    - name: Create feature branch from main and add solution
       run: |
         git fetch origin
-        # Checkout the remote solutions branch and reset the local solutions branch
-        git checkout origin/solutions
+        # Checkout main branch
+        git checkout origin/main
+        # Create feature branch from main with version number
         git checkout -b feature/${{ github.event.inputs.solution_version }}
         mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
