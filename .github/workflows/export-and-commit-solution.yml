@@ -1,16 +1,15 @@
-name: Export Power Platform Solution
+name: Export Solution and Create Feature Branch
 
 on:
   workflow_dispatch:
     inputs:
       solution_name:
-        description: 'Name of the solution to export from Power Platform'
+        description: 'Name of the solution to export'
         required: true
         default: ADCBMasterConfigurations
       version:
-        description: 'Solution version'
+        description: 'Version number (e.g., v1.0.0)'
         required: true
-        default: v1.0.0
 
 env:
   ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
@@ -21,83 +20,64 @@ permissions:
   contents: write
 
 jobs:
-  export-solution:
+  export-and-create-branch:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout main repo
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-    - name: Install Microsoft Power Platform CLI
+    - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Configure Git
+    - name: Setup Git user
       run: |
         git config --global user.email "no-reply@github.com"
         git config --global user.name "GitHub Actions"
 
-    - name: Fetch and switch to solutions branch
+    - name: Switch to solutions branch
       run: |
         git fetch origin
-        git checkout -b solutions origin/solutions
+        git switch solutions || git checkout -b solutions origin/solutions
 
-    - name: Create version folder and backup old solution if any
+    - name: Create versioned folder and export solution
       run: |
-        mkdir -p ${{ github.event.inputs.version }}/exportsolution
-        ZIP_PATH="${{ github.event.inputs.solution_name }}_unmanaged.zip"
-        SOL_FOLDER="${{ github.event.inputs.solution_name }}"
+        VERSION=${{ github.event.inputs.version }}
+        SOLUTION_NAME=${{ github.event.inputs.solution_name }}
+        mkdir -p $VERSION/exportsolution
 
-        if [ -f "$ZIP_PATH" ]; then
-          mv "$ZIP_PATH" "${{ github.event.inputs.version }}/exportsolution/"
-        fi
+        # Export solution zip
+        pac auth create --url ${{ env.ENVIRONMENT_URL }} --clientId ${{ env.CLIENT_ID }} --clientSecret "${{ secrets.PowerPlatformSPN }}" --tenant ${{ env.TENANT_ID }}
+        pac solution export --name $SOLUTION_NAME --outputFile $VERSION/exportsolution/${SOLUTION_NAME}_unmanaged.zip --managed false --overwrite
 
-        if [ -d "$SOL_FOLDER" ]; then
-          mv "$SOL_FOLDER" "${{ github.event.inputs.version }}/exportsolution/source"
-        fi
+        # Unpack
+        pac solution unpack --zipfile $VERSION/exportsolution/${SOLUTION_NAME}_unmanaged.zip --folder $VERSION/exportsolution/source --packagetype Unmanaged
 
-    - name: Who Am I
-      uses: microsoft/powerplatform-actions/who-am-i@v1
-      with:
-        environment-url: ${{ env.ENVIRONMENT_URL }}
-        app-id: ${{ env.CLIENT_ID }}
-        client-secret: ${{ secrets.PowerPlatformSPN }}
-        tenant-id: ${{ env.TENANT_ID }}
-
-    - name: Export solution from Power Platform
-      uses: microsoft/powerplatform-actions/export-solution@v1
-      with:
-        environment-url: ${{ env.ENVIRONMENT_URL }}
-        app-id: ${{ env.CLIENT_ID }}
-        client-secret: ${{ secrets.PowerPlatformSPN }}
-        tenant-id: ${{ env.TENANT_ID }}
-        solution-name: ${{ github.event.inputs.solution_name }}
-        solution-output-file: ${{ github.event.inputs.solution_name }}_unmanaged.zip
-
-    - name: Unpack exported solution
-      uses: microsoft/powerplatform-actions/unpack-solution@v1
-      with:
-        solution-file: ${{ github.event.inputs.solution_name }}_unmanaged.zip
-        solution-folder: ${{ github.event.inputs.solution_name }}
-        solution-type: 'Unmanaged'
-        overwrite-files: true
-
-    - name: Move exported solution to versioned folder
+    - name: Commit and push to solutions branch
       run: |
-        mkdir -p ${{ github.event.inputs.version }}/exportsolution
-        mv ${{ github.event.inputs.solution_name }}_unmanaged.zip ${{ github.event.inputs.version }}/exportsolution/
-        mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.version }}/exportsolution/source
-
-    - name: Commit to solutions branch
-      run: |
-        git add .
-        git commit -m "Exported ${{ github.event.inputs.solution_name }} to solutions branch with version ${{ github.event.inputs.version }}"
+        git add ${{ github.event.inputs.version }}/exportsolution
+        git commit -m "Exported ${{ github.event.inputs.solution_name }} to version folder ${{ github.event.inputs.version }}"
         git push origin solutions
 
-    - name: Create feature branch from main and push solution
+    - name: Create feature branch from main
       run: |
+        VERSION=${{ github.event.inputs.version }}
         git fetch origin
-        git checkout -b feature/${{ github.event.inputs.version }} origin/main
-        cp -r ${{ github.event.inputs.version }}/exportsolution/* .
+        git checkout origin/main
+        git checkout -b feature/$VERSION
+
+    - name: Copy solution folder from solutions branch
+      run: |
+        VERSION=${{ github.event.inputs.version }}
+        git checkout solutions -- $VERSION/exportsolution
+        mkdir -p $VERSION
+        mv $VERSION/exportsolution/* ./
+        rm -r $VERSION
+
+    - name: Commit and push to feature branch
+      run: |
         git add .
         git commit -m "Added solution version ${{ github.event.inputs.version }} for development"
         git push origin feature/${{ github.event.inputs.version }}
