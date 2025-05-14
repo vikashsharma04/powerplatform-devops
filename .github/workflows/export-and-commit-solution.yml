@@ -1,4 +1,5 @@
-name: Export Power Platform Solution
+name: Export Power Platform Solution and Create Feature Branch
+
 on:
   workflow_dispatch:
     inputs:
@@ -52,7 +53,7 @@ jobs:
         git config --global user.email "no-reply@github.com"
         git config --global user.name "GitHub Actions"
         git fetch origin
-        git checkout solutions
+        git checkout -t origin/solutions || git checkout -b solutions
         mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
@@ -61,7 +62,7 @@ jobs:
     - name: Create feature branch from solutions and push solution
       run: |
         git fetch origin
-        git checkout solutions
+        git checkout -t origin/solutions || git checkout -b solutions
         git checkout -b feature/${{ github.event.inputs.solution_version }}
         mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
