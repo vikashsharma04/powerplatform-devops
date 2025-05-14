@@ -97,7 +97,7 @@ jobs:
       run: |
         git fetch origin
         git checkout -b feature/${{ github.event.inputs.version }} origin/solutions
-        cp -r ${{ github.event.inputs.version }}/exportsolution/* .
+        cp -r ${{ github.event.inputs.version }}/exportsolution/source* .
         git add .
         git commit -m "Added solution version ${{ github.event.inputs.version }} for development"
         git push origin feature/${{ github.event.inputs.version }}
