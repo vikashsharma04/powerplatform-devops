@@ -95,9 +95,21 @@ jobs:
 
     - name: Create feature branch from main and push solution
       run: |
+        VERSION=${{ github.event.inputs.version }}
+    
+        # Checkout main and create feature branch from it
         git fetch origin
-        git checkout -b feature${{ github.event.inputs.version }} origin/solutions
-        cp -r ${{ github.event.inputs.version }}/exportsolution/source* .
+        git checkout origin/main
+        git checkout -b feature/${VERSION}
+    
+        # Checkout only the current version folder from solutions branch
+        git checkout origin/solutions -- ${VERSION}/exportsolution
+    
+        # Move solution content to root (or any desired place)
+        cp -r ${VERSION}/exportsolution/* ./
+        rm -rf ${VERSION}
+    
         git add .
-        git commit -m "Added solution version ${{ github.event.inputs.version }} for development"
-        git push origin feature${{ github.event.inputs.version }}
+        git commit -m "Added solution version ${VERSION} for development"
+        git push origin feature/${VERSION}
+
