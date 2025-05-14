@@ -100,7 +100,7 @@ jobs:
         # Checkout main and create feature branch from it
         git fetch origin
         git checkout origin/main
-        git checkout -b feature/${VERSION}
+        git checkout -b feature${VERSION}
     
         # Checkout only the current version folder from solutions branch
         git checkout origin/solutions -- ${VERSION}/exportsolution
@@ -111,5 +111,5 @@ jobs:
     
         git add .
         git commit -m "Added solution version ${VERSION} for development"
-        git push origin feature/${VERSION}
+        git push origin feature${VERSION}
 
