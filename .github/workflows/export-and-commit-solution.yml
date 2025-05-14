@@ -68,11 +68,13 @@ jobs:
         git commit -m "Exported ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }} to solutions branch"
         git push origin solutions
 
-    - name: Create and push feature branch
+    - name: Push to solutions branch
       run: |
-        git checkout -b ${{ steps.vars.outputs.feature_branch }} origin/solutions
-        mkdir -p ${{ steps.vars.outputs.solution_path }}
-        cp -r ${{ steps.vars.outputs.solution_path }}/* ${{ steps.vars.outputs.solution_path }}
-        git add ${{ steps.vars.outputs.solution_path }}
-        git commit -m "Copied ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }} to feature branch"
-        git push origin ${{ steps.vars.outputs.feature_branch }}
+        git config --global user.email "no-reply@github.com"
+        git config --global user.name "GitHub Actions"
+        git fetch origin
+        git checkout solutions
+        mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
+        git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
+        git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
+        git push origin solutions
