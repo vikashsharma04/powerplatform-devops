@@ -1,5 +1,4 @@
-name: Export Power Platform Solution
-
+name: Export PowerApps Solution
 on:
   workflow_dispatch:
     inputs:
@@ -8,12 +7,8 @@ on:
         required: true
         default: ADCBMasterConfigurations
       solution_version:
-        description: 'Version label for the export (e.g., v1.0.0)'
+        description: 'Version label (e.g., v1.0.0)'
         required: true
-      create_feature_branch:
-        description: 'Create a feature branch from this version'
-        required: false
-        default: 'true'
 
 env:
   ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
@@ -28,13 +23,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout main repo
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Export solution from Power Platform
+    - name: Set variables
+      id: vars
+      run: |
+        echo "solution_path=solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}" >> $GITHUB_OUTPUT
+        echo "feature_branch=feature/${{ github.event.inputs.solution_name }}-${{ github.event.inputs.solution_version }}" >> $GITHUB_OUTPUT
+
+    - name: Checkout solutions branch
+      run: |
+        git fetch origin solutions
+        git checkout solutions || git checkout -b solutions origin/main
+
+    - name: Export solution zip
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
         environment-url: ${{ env.ENVIRONMENT_URL }}
@@ -42,32 +50,29 @@ jobs:
         client-secret: ${{ secrets.PowerPlatformSPN }}
         tenant-id: ${{ env.TENANT_ID }}
         solution-name: ${{ github.event.inputs.solution_name }}
-        solution-output-file: solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
+        solution-output-file: ${{ steps.vars.outputs.solution_path }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
 
-    - name: Unpack the solution
+    - name: Unpack solution
       uses: microsoft/powerplatform-actions/unpack-solution@v1
       with:
-        solution-file: solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
-        solution-folder: solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}/source
+        solution-file: ${{ steps.vars.outputs.solution_path }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
+        solution-folder: ${{ steps.vars.outputs.solution_path }}/source
         solution-type: 'Unmanaged'
         overwrite-files: true
 
-    - name: Push to solutions branch
+    - name: Commit to solutions branch
       run: |
         git config --global user.email "no-reply@github.com"
         git config --global user.name "GitHub Actions"
-
-        git fetch
-        git checkout solutions || git checkout -b solutions
-
-        mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
-        git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
-        git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
+        git add ${{ steps.vars.outputs.solution_path }}
+        git commit -m "Exported ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }} to solutions branch"
         git push origin solutions
 
-    - name: Create feature branch from exported solution (optional)
-      if: ${{ github.event.inputs.create_feature_branch == 'true' }}
+    - name: Create and push feature branch
       run: |
-        git fetch
-        git checkout -b feature/${{ github.event.inputs.solution_name }}-${{ github.event.inputs.solution_version }} solutions
-        git push origin feature/${{ github.event.inputs.solution_name }}-${{ github.event.inputs.solution_version }}
+        git checkout -b ${{ steps.vars.outputs.feature_branch }} origin/solutions
+        mkdir -p ${{ steps.vars.outputs.solution_path }}
+        cp -r ${{ steps.vars.outputs.solution_path }}/* ${{ steps.vars.outputs.solution_path }}
+        git add ${{ steps.vars.outputs.solution_path }}
+        git commit -m "Copied ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }} to feature branch"
+        git push origin ${{ steps.vars.outputs.feature_branch }}
