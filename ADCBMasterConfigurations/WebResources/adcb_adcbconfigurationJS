@@ -1,0 +1,99 @@
+function lockFieldsOnApproved(executionContext) 
+{
+    debugger;
+    var formContext = executionContext.getFormContext();
+    if (formContext.ui.getFormType() == 2)
+    {
+        var approvalstatus = formContext.getAttribute("adcb_approvalstatus");
+        var statuscode = formContext.getAttribute("statuscode");
+        if (approvalstatus && approvalstatus.getValue() === 339060001 && statuscode.getValue() === 1 || approvalstatus.getValue() === 339060002) 
+        {
+            var allAttributes = formContext.data.entity.attributes.get();
+            for (var i = 0; i < allAttributes.length; i++) {
+                var attribute = allAttributes[i];
+                var controls = attribute.controls.get();
+                for (var j = 0; j < controls.length; j++) {
+                    controls[j].setDisabled(false);
+                }
+            }
+            formContext.data.refresh();
+        }
+        else if (!(statuscode.getValue() === 1 || statuscode.getValue() === 339060003)) 
+        {
+        
+            var allAttributes = formContext.data.entity.attributes.get();
+            for (var i = 0; i < allAttributes.length; i++) {
+                var attribute = allAttributes[i];
+                var controls = attribute.controls.get();
+                for (var j = 0; j < controls.length; j++) {
+                    controls[j].setDisabled(true);
+                }
+            }
+            formContext.data.refresh();
+        }
+    }
+}
+
+function lockApprovalStatusUpdate(executionContext) {
+    debugger;
+    var formContext = executionContext.getFormContext();
+    if (formContext.ui.getFormType() == 2) {
+        var approvalstatus = formContext.getAttribute("adcb_approvalstatus");
+        var statuscode = formContext.getAttribute("statuscode");
+        if (approvalstatus && (approvalstatus.getValue() === 339060000 || approvalstatus.getValue() === 339060002)) {
+            var allAttributes = formContext.data.entity.attributes.get();
+            for (var i = 0; i < allAttributes.length; i++) {
+                var attribute = allAttributes[i];
+                var controls = attribute.controls.get();
+                for (var j = 0; j < controls.length; j++) {
+                    controls[j].setDisabled(true);
+                }
+            }
+        
+        }       
+    }
+}
+
+
+function rejectRecordWithConfirmation(executionContext) {
+    debugger;
+    var formContext = executionContext;
+
+    Xrm.Navigation.openConfirmDialog({
+        title: "Confirm Rejection",
+        text: "Are you sure you want to reject this record?"
+    }).then(function (result) {
+        if (result.confirmed) {
+            var commentField = formContext.getAttribute("description");
+            commentField.setRequiredLevel("required");
+            if (commentField.getValue() === null || commentField.getValue() === "") {
+                // If description is empty, show alert and do not change status or state
+                Xrm.Navigation.openAlertDialog({ text: "Rejection comment is required." });
+                return; // Exit the function without changing status or state
+            }
+
+            // Set status to Rejected if description is provided
+            var statusAttribute = formContext.getAttribute("statecode");
+            if (statusAttribute) {
+                statusAttribute.setValue(2); // Set status to Rejected
+            }
+
+            var statusAttribute1 = formContext.getAttribute("statuscode");
+            if (statusAttribute1) {
+                statusAttribute1.setValue(3); // Set specific rejection status code
+            }
+
+            // Set comment in description field
+            if (commentField) {
+                commentField.setValue(commentField.getValue().trim());
+            }
+
+            // Save the record
+            formContext.data.save().then(function () {
+                //    Xrm.Navigation.openAlertDialog({ text: "Record has been rejected with comment." });
+            });
+        }
+    }).catch(function (error) {
+        console.error("Rejection confirmation failed:", error.message);
+    });
+}
