@@ -1,4 +1,4 @@
-name: Export Power Platform Solution and Create Versioned Feature Branch
+name: Export Power Platform Solution, Version, and Create Feature Branch
 
 on:
   workflow_dispatch:
