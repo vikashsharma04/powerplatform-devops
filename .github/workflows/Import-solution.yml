@@ -1,4 +1,4 @@
-name: Pack and Import Power Platform Solution
+name: Import Power Platform Solution
 
 on:
   workflow_dispatch:
