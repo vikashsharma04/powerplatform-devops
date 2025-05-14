@@ -1,0 +1,40 @@
+name: Backup Power Platform Solution
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name:
+        description: 'Solution name to back up'
+        required: true
+        default: 'YourSolutionName'
+
+env:
+  ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/' # Update to your environment URL
+  CLIENT_ID: '2c34728a-634b-414c-b7e4-e904ead4b2c1'
+  TENANT_ID: '807cb068-493f-40b4-b067-712d94fa7730'
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: Export solution as unmanaged
+      uses: microsoft/powerplatform-actions/export-solution@v1
+      with:
+        environment-url: ${{ env.ENVIRONMENT_URL }}
+        app-id: ${{ env.CLIENT_ID }}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{ env.TENANT_ID }}
+        solution-name: ${{ github.event.inputs.solution_name }}
+        solution-output-file: backups/${{ github.event.inputs.solution_name }}_unmanaged.zip
+
+    - name: Upload Backup Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: solution-backup
+        path: backups/${{ github.event.inputs.solution_name }}_unmanaged.zip
