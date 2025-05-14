@@ -53,7 +53,8 @@ jobs:
         git config --global user.email "no-reply@github.com"
         git config --global user.name "GitHub Actions"
         git fetch origin
-        git checkout -t origin/solutions || git checkout -b solutions
+        # Ensure the solutions branch is checked out
+        git checkout origin/solutions || git checkout -b solutions
         mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
@@ -62,7 +63,8 @@ jobs:
     - name: Create feature branch from solutions and push solution
       run: |
         git fetch origin
-        git checkout -t origin/solutions || git checkout -b solutions
+        # Checkout the remote solutions branch and reset the local solutions branch
+        git checkout origin/solutions
         git checkout -b feature/${{ github.event.inputs.solution_version }}
         mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
