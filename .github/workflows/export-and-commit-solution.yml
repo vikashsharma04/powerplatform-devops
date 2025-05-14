@@ -53,8 +53,7 @@ jobs:
         git config --global user.email "no-reply@github.com"
         git config --global user.name "GitHub Actions"
         git fetch origin
-        # Ensure the solutions branch is checked out
-        git checkout origin/solutions || git checkout -b solutions
+        git checkout -B solutions origin/solutions
         mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
         git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
