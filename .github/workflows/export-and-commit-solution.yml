@@ -4,9 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       solution_name:
-        description: 'Name of the solution to export from Power Platform'
+        description: 'Name of the solution to export'
         required: true
         default: ADCBMasterConfigurations
+      solution_version:
+        description: 'Version label for the export (e.g., v1.0.0)'
+        required: true
+      create_feature_branch:
+        description: 'Create a feature branch from this version'
+        required: false
+        default: 'true'
 
 env:
   ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
@@ -17,45 +24,17 @@ permissions:
   contents: write
 
 jobs:
-  export-and-backup:
+  export-solution:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install Microsoft Power Platform CLI
+    - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Set backup timestamp
-      id: set_time
-      run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
-
-    - name: Create backup folder and move old export if it exists
-      run: |
-        export ZIP_PATH="${{ github.event.repository.name }}/${{ github.event.inputs.solution_name }}_unmanaged.zip"
-        export SOL_FOLDER="${{ github.event.repository.name }}/${{ github.event.inputs.solution_name }}"
-        export BACKUP_FOLDER="versions/v${{ steps.set_time.outputs.timestamp }}"
-
-        mkdir -p $BACKUP_FOLDER
-
-        if [ -f "$ZIP_PATH" ]; then
-          mv "$ZIP_PATH" "$BACKUP_FOLDER/"
-        fi
-
-        if [ -d "$SOL_FOLDER" ]; then
-          mv "$SOL_FOLDER" "$BACKUP_FOLDER/"
-        fi
-
-    - name: Who Am I
-      uses: microsoft/powerplatform-actions/who-am-i@v1
-      with:
-        environment-url: ${{ env.ENVIRONMENT_URL }}
-        app-id: ${{ env.CLIENT_ID }}
-        client-secret: ${{ secrets.PowerPlatformSPN }}
-        tenant-id: ${{ env.TENANT_ID }}
-
-    - name: Export solution
+    - name: Export solution from Power Platform
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
         environment-url: ${{ env.ENVIRONMENT_URL }}
@@ -63,23 +42,32 @@ jobs:
         client-secret: ${{ secrets.PowerPlatformSPN }}
         tenant-id: ${{ env.TENANT_ID }}
         solution-name: ${{ github.event.inputs.solution_name }}
-        solution-output-file: ${{ github.event.repository.name }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
+        solution-output-file: solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
 
-    - name: Unpack solution
+    - name: Unpack the solution
       uses: microsoft/powerplatform-actions/unpack-solution@v1
       with:
-        solution-file: ${{ github.event.repository.name }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
-        solution-folder: ${{ github.event.repository.name }}/${{ github.event.inputs.solution_name }}
+        solution-file: solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}/${{ github.event.inputs.solution_name }}_unmanaged.zip
+        solution-folder: solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}/source
         solution-type: 'Unmanaged'
         overwrite-files: true
 
-    - name: Commit and push changes to main
+    - name: Push to solutions branch
       run: |
-        git fetch --all
         git config --global user.email "no-reply@github.com"
         git config --global user.name "GitHub Actions"
-        git checkout main
-        git add --all
-        git commit -m "Exported and backed up solution: ${{ github.event.inputs.solution_name }}"
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-        git push
+
+        git fetch
+        git checkout solutions || git checkout -b solutions
+
+        mkdir -p solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
+        git add solutions/${{ github.event.inputs.solution_name }}/${{ github.event.inputs.solution_version }}
+        git commit -m "Exported solution ${{ github.event.inputs.solution_name }} version ${{ github.event.inputs.solution_version }}"
+        git push origin solutions
+
+    - name: Create feature branch from exported solution (optional)
+      if: ${{ github.event.inputs.create_feature_branch == 'true' }}
+      run: |
+        git fetch
+        git checkout -b feature/${{ github.event.inputs.solution_name }}-${{ github.event.inputs.solution_version }} solutions
+        git push origin feature/${{ github.event.inputs.solution_name }}-${{ github.event.inputs.solution_version }}
