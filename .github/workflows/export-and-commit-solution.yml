@@ -83,7 +83,7 @@ jobs:
 
     - name: Move exported solution to versioned folder
       run: |
-        mkdir -p ${{ github.event.inputs.version }}/exportsolution
+        mkdir -p ${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}
         mv ${{ github.event.inputs.solution_name }}_unmanaged.zip ${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}/
         mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}/
 
@@ -103,7 +103,7 @@ jobs:
         git checkout -b feature${VERSION}
     
         # Checkout only the current version folder from solutions branch
-        git checkout origin/solutions -- ${VERSION}/solution
+        git checkout origin/solutions -- ${VERSION}/${{ github.event.inputs.solution_name }}
     
         # Move solution content to root (or any desired place)
         cp -r ${VERSION}/${{ github.event.inputs.solution_name }}/*
