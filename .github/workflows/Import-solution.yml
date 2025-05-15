@@ -2,6 +2,15 @@ name: Import Power Platform Solution
 
 on:
   workflow_dispatch:
+    inputs:
+      solutionRootFolder:
+        description: 'Enter the solution folder name (e.g., ADCBMasterConfigurations-v9.0.0)'
+        required: true
+        type: string
+      solutionFolder:
+        description: 'Enter the solution folder name (e.g., ADCBMasterConfigurations)'
+        required: true
+        type: string
 
 env:
   ENVIRONMENT_URL: 'https://demo001.crm8.dynamics.com/'
@@ -25,8 +34,8 @@ jobs:
     - name: Pack solution
       uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
-        solution-folder: powerplatform-devops/ADCBMasterConfigurations
-        solution-file: powerplatform-devops/ADCBMasterConfigurations.zip
+        solution-folder: ${{ github.event.inputs.solutionRootFolder }}/ADCBMasterConfigurations
+        solution-file: ${{ github.event.inputs.solutionRootFolder }}/ADCBMasterConfigurations.zip
         solution-type: Unmanaged
         overwrite-files: true
 
@@ -37,5 +46,5 @@ jobs:
         app-id: ${{ env.CLIENT_ID }}
         client-secret: ${{ secrets.PowerPlatformSPN }}
         tenant-id: ${{ env.TENANT_ID }}
-        solution-file: powerplatform-devops/ADCBMasterConfigurations.zip
+        solution-file: ${{ github.event.inputs.solutionRootFolder }}/ADCBMasterConfigurations.zip
         force-overwrite: true
