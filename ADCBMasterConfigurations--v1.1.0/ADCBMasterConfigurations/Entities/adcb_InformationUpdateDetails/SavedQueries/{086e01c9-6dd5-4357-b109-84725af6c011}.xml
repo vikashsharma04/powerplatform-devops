@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{086e01c9-6dd5-4357-b109-84725af6c011}</savedqueryid>
+    <layoutxml>
+      <grid name="adcb_informationupdatedetailses" jump="adcb_fieldname" select="1" icon="1" preview="1">
+        <row name="adcb_informationupdatedetails" id="adcb_informationupdatedetailsid">
+          <cell name="adcb_fieldname" width="162" />
+          <cell name="createdon" width="125" />
+          <cell name="adcb_existingvalue" width="137" />
+          <cell name="adcb_newvalue" width="136" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>2</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="adcb_informationupdatedetails">
+          <attribute name="adcb_informationupdatedetailsid" />
+          <attribute name="adcb_fieldname" />
+          <attribute name="createdon" />
+          <order attribute="adcb_fieldname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="adcb_existingvalue" />
+          <attribute name="adcb_newvalue" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Information Update Details Associated View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
