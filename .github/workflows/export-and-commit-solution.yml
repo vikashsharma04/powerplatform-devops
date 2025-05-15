@@ -43,16 +43,16 @@ jobs:
 
     - name: Create version folder and backup old solution if any
       run: |
-        mkdir -p ${{ github.event.inputs.version }}/exportsolution
+        mkdir -p ${{ github.event.inputs.version }}/solution
         ZIP_PATH="${{ github.event.inputs.solution_name }}_unmanaged.zip"
         SOL_FOLDER="${{ github.event.inputs.solution_name }}"
 
         if [ -f "$ZIP_PATH" ]; then
-          mv "$ZIP_PATH" "${{ github.event.inputs.version }}/exportsolution/"
+          mv "$ZIP_PATH" "${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}/"
         fi
 
         if [ -d "$SOL_FOLDER" ]; then
-          mv "$SOL_FOLDER" "${{ github.event.inputs.version }}/exportsolution/"
+          mv "$SOL_FOLDER" "${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}/"
         fi
 
     - name: Who Am I
@@ -84,8 +84,8 @@ jobs:
     - name: Move exported solution to versioned folder
       run: |
         mkdir -p ${{ github.event.inputs.version }}/exportsolution
-        mv ${{ github.event.inputs.solution_name }}_unmanaged.zip ${{ github.event.inputs.version }}/exportsolution/
-        mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.version }}/exportsolution/
+        mv ${{ github.event.inputs.solution_name }}_unmanaged.zip ${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}/
+        mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.version }}/${{ github.event.inputs.solution_name }}/
 
     - name: Commit to solutions branch
       run: |
@@ -103,10 +103,10 @@ jobs:
         git checkout -b feature${VERSION}
     
         # Checkout only the current version folder from solutions branch
-        git checkout origin/solutions -- ${VERSION}/exportsolution
+        git checkout origin/solutions -- ${VERSION}/solution
     
         # Move solution content to root (or any desired place)
-        cp -r ${VERSION}/exportsolution/* ./
+        cp -r ${VERSION}/${{ github.event.inputs.solution_name }}/*
         rm -rf ${VERSION}
     
         git add .
