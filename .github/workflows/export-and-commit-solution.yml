@@ -106,7 +106,7 @@ jobs:
         git checkout origin/solutions -- ${VERSION}/${{ github.event.inputs.solution_name }}
     
         # Move solution content to root (or any desired place)
-        cp -r ${VERSION}/${{ github.event.inputs.solution_name }}
+        cp -r ${VERSION}/* ./
         rm -rf ${VERSION}
     
         git add .
