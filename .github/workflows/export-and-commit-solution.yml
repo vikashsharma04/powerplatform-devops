@@ -43,7 +43,7 @@ jobs:
 
     - name: Create version folder and backup old solution if any
       run: |
-        mkdir -p ${{ github.event.inputs.version }}/solution
+        mkdir -p ${{ github.event.inputs.solution_name }}-${{ github.event.inputs.version }}/
         ZIP_PATH="${{ github.event.inputs.solution_name }}_unmanaged.zip"
         SOL_FOLDER="${{ github.event.inputs.solution_name }}"
 
@@ -83,7 +83,7 @@ jobs:
 
     - name: Move exported solution to versioned folder
       run: |
-        mkdir -p ${{ github.event.inputs.solution_name }}${{ github.event.inputs.version }}
+        mkdir -p ${{ github.event.inputs.solution_name }}-${{ github.event.inputs.version }}
         mv ${{ github.event.inputs.solution_name }}_unmanaged.zip ${{ github.event.inputs.solution_name }}-${{ github.event.inputs.version }}/
         mv ${{ github.event.inputs.solution_name }} ${{ github.event.inputs.solution_name }}-${{ github.event.inputs.version }}/
 
